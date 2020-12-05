@@ -1,0 +1,16 @@
+version: "3"
+services:
+  cockroachdb:
+    image: cockroachdb/cockroach:v20.2.2
+    command: start-single-node --insecure
+    environment:
+      - COCKROACH_INSECURE=true
+      - COCKROACH_DATABASE=elephant
+    ports:
+      - "4445:26257"
+      - "8080:8080"
+    volumes:
+      - cockroach-data:/cockroach/cockroach-data
+# TODO minio
+volumes:
+  cockroach-data: {}
