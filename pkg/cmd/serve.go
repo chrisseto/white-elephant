@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"database/sql"
 	"net"
 
 	"github.com/chrisseto/white-elephant/pkg/migrations"
 	"github.com/chrisseto/white-elephant/pkg/server"
 	"github.com/cockroachdb/errors"
 	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/jmoiron/sqlx"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
@@ -30,12 +30,14 @@ var serverCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := RootContext()
 
-		db, err := sql.Open("pgx", dbURI)
+		db, err := sqlx.Open("pgx", dbURI)
 		if err != nil {
 			return errors.Wrap(err, "connecting to DB")
 		}
 
-		if err := migrations.Up(ctx, db); err != nil {
+		defer db.Close()
+
+		if err := migrations.Up(ctx, db.DB); err != nil {
 			return err
 		}
 
@@ -47,7 +49,7 @@ var serverCmd = &cobra.Command{
 		group, ctx := errgroup.WithContext(ctx)
 
 		group.Go(func() error {
-			s := server.New()
+			s := server.New(db)
 			return s.Serve(ctx, lis)
 		})
 

@@ -1,10 +1,18 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import React from 'react';
+import { Link, Route } from "wouter";
+import ReactDOM from 'react-dom';
+import Landing from './landing';
+import Room from './room';
 
-export class App extends React.Component {
-  render() {
-    return <h1>Hello World!</h1>
-  }
+export const App = () => {
+  return (
+    <div>
+      <Route path="/" component={Landing} />
+      <Route path="/room/:id/" component={Room} />
+    </div>
+  );
 }
 
-ReactDOM.render(<App />, document.getElementById('app'));
+ReactDOM.unstable_createRoot(
+  document.getElementById('root')
+).render(<App />);

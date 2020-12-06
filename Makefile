@@ -6,17 +6,21 @@ MAKEFLAGS += -j2
 # .NOTPARALLEL: build
 build: bin/dist bin/white-elephant
 
-dev: override GOTAGS += dev
-dev: _web-watch _server
-
-_web-watch:
-	yarn run parcel watch ./web/index.html --public-url ./static/
-
-_server: bin/white-elephant
+dev-server: override GOTAGS += dev
+dev-server: bin/white-elephant
 	./bin/white-elephant serve
 
+parcel-watch:
+	yarn run parcel watch ./web/index.html --public-url /static/
+
+cockroach:
+	cockroach start-single-node \
+		--advertise-addr localhost \
+		--insecure \
+		--port 4445 \
+
 bin/dist:
-	yarn run parcel build ./web/index.html --public-url ./static/
+	NODE_ENV=production yarn run parcel build ./web/index.html --public-url /static/
 
 bin/white-elephant:
 	go generate ./...
